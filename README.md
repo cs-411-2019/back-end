@@ -2,7 +2,7 @@
 install Python3
 
 ```
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 ## Running the server
