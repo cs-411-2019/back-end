@@ -1,5 +1,8 @@
 USE drinkingBuddies;
 
+/* Disable foreign key checks to be able to drop tables */
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+
 DROP TABLE IF EXISTS `Users`;  
 CREATE TABLE Users (
   UserId INT NOT NULL AUTO_INCREMENT,
@@ -9,6 +12,16 @@ CREATE TABLE Users (
   PRIMARY KEY (UserId)
 );
 
+DROP TABLE IF EXISTS `Friends`;
+CREATE TABLE Friends (
+  UserId INT NOT NULL,
+  FriendUserId INT NOT NULL,
+  PRIMARY KEY (UserId, FriendUserId),
+  FOREIGN KEY (UserId)
+    REFERENCES Users(UserId),
+  FOREIGN KEY (FriendUserId)
+    REFERENCES Users(UserId)
+);
 
 DROP TABLE IF EXISTS `Bars`;  
 CREATE TABLE Bars(
@@ -25,7 +38,6 @@ CREATE TABLE Bars(
   PRIMARY KEY (BarId)
 );
 
-
 DROP TABLE IF EXISTS `Breweries`;  
 CREATE TABLE Breweries(
   BrewerId  INT NOT NULL AUTO_INCREMENT,
@@ -40,6 +52,12 @@ CREATE TABLE Breweries(
   PRIMARY KEY (BrewerId)
 );
 
+DROP TABLE IF EXISTS `BeerTypes`;
+CREATE TABLE BeerTypes(
+  BeerTypeId INT NOT NULL AUTO_INCREMENT,
+  Style VARCHAR(55) NOT NULL,
+  PRIMARY KEY (BeerTypeId)
+);
 
 DROP TABLE IF EXISTS `Beers`; 
 CREATE TABLE Beers(
@@ -50,29 +68,34 @@ CREATE TABLE Beers(
   ABV DOUBLE NOT NULL,
   Availability VARCHAR(55) NOT NULL ,
   Retired BOOLEAN DEFAULT FALSE NOT NULL,
-  PRIMARY KEY (BeerId)
+  PRIMARY KEY (BeerId),
+  FOREIGN KEY (BeerTypeId)
+	REFERENCES BeerTypes(BeerTypeId)
 );
-
-
-DROP TABLE IF EXISTS `BeerTypes`;
-CREATE TABLE BeerTypes(
-  BeerTypeId INT NOT NULL AUTO_INCREMENT,
-  Style VARCHAR(55) NOT NULL,
-  PRIMARY KEY (BeerTypeId)
-);
-
 
 DROP TABLE IF EXISTS `BarReviews`;
 CREATE TABLE BarReviews (
   BarReviewId INT NOT NULL AUTO_INCREMENT,
   UserId INT NOT NULL,
-  BarID INT NOT NULL,
+  BarId INT NOT NULL,
   `Text` TEXT NOT NULL,
   Overall DOUBLE NOT NULL,
   `Time` TIMESTAMP,
-  PRIMARY KEY (BarReviewId)
+  PRIMARY KEY (BarReviewId),
+  FOREIGN KEY (BarId)
+	REFERENCES Bars(BarId)
 );
 
+DROP TABLE IF EXISTS `Serves`;
+CREATE TABLE Serves (
+  BarId INT NOT NULL,
+  BeerId INT NOT NULL,
+  PRIMARY KEY (BarId, BeerId),
+  FOREIGN KEY (BarId)
+	REFERENCES Bars(BarId),
+  FOREIGN KEY (BeerId)
+    REFERENCES Beers(BeerId)
+);
 
 DROP TABLE IF EXISTS `BeerReviews`;
 CREATE TABLE BeerReviews (
@@ -87,5 +110,53 @@ CREATE TABLE BeerReviews (
   `Time` TIMESTAMP,
   PRIMARY KEY (BeerReviewsId)
 );
+
+DROP TABLE IF EXISTS `Visited`;
+CREATE TABLE Visited (
+  UserId INT NOT NULL,
+  BarId INT NOT NULL,
+  `Time` TIMESTAMP,
+  PRIMARY KEY (UserId, BarId),
+  FOREIGN KEY (UserId)
+    REFERENCES Users(UserId),
+  FOREIGN KEY (BarId)
+	REFERENCES Bars(BarId)
+);
+
+DROP TABLE IF EXISTS `FavoriteBars`;
+CREATE TABLE FavoriteBars (
+  UserId INT NOT NULL,
+  BarId INT NOT NULL,
+  PRIMARY KEY (UserId, BarId),
+  FOREIGN KEY (UserId)
+    REFERENCES Users(UserId),
+  FOREIGN KEY (BarId)
+	REFERENCES Bars(BarId)
+);
+
+DROP TABLE IF EXISTS `FavoriteBeers`;
+CREATE TABLE FavoriteBeers (
+  UserId INT NOT NULL,
+  BeerId INT NOT NULL,
+  PRIMARY KEY (UserId, BeerId),
+  FOREIGN KEY (UserId)
+    REFERENCES Users(UserId),
+  FOREIGN KEY (BeerId)
+	REFERENCES Beers(BeerId)
+);
+
+DROP TABLE IF EXISTS `Drinks`;
+CREATE TABLE Drinks (
+  UserId INT NOT NULL,
+  BeerId INT NOT NULL,
+  `Time` TIMESTAMP,
+  PRIMARY KEY (UserId, BeerId),
+  FOREIGN KEY (UserId)
+    REFERENCES Users(UserId),
+  FOREIGN KEY (BeerId)
+	REFERENCES Beers(BeerId)
+);
+
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 
 /* */
