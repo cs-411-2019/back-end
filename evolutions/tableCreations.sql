@@ -47,6 +47,7 @@ CREATE TABLE Breweries(
   Address VARCHAR(150),
   City VARCHAR(150) NOT NULL,
   State VARCHAR(2) NOT NULL,
+  PostalCode VARCHAR(6) NOT NULL,
   Country VARCHAR(55),
   `Type` VARCHAR(150) NOT NULL,
   PRIMARY KEY (BrewerId)
@@ -103,6 +104,7 @@ CREATE TABLE BeerReviews (
   UserId INT NOT NULL,
   BeerId INT NOT NULL,
   Appearance VARCHAR(55),
+  Aroma VARCHAR(55),
   Palate VARCHAR(55),
   Taste VARCHAR(55),
   Overall DOUBLE NOT NULL,
