@@ -101,7 +101,7 @@ CREATE TABLE Serves (
 
 DROP TABLE IF EXISTS `BeerReviews`;
 CREATE TABLE BeerReviews (
-  BeerReviewsId INT NOT NULL AUTO_INCREMENT,
+  BeerReviewId INT NOT NULL AUTO_INCREMENT,
   UserId INT NOT NULL,
   BeerId INT NOT NULL,
   Appearance VARCHAR(55),
@@ -111,7 +111,7 @@ CREATE TABLE BeerReviews (
   Overall DOUBLE NOT NULL,
   `Text` TEXT NOT NULL,
   `Time` TIMESTAMP,
-  PRIMARY KEY (BeerReviewsId)
+  PRIMARY KEY (BeerReviewId)
 );
 
 DROP TABLE IF EXISTS `Visited`;
