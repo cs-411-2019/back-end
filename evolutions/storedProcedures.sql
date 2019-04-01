@@ -293,7 +293,7 @@ BEGIN
 		BeerTypeId,
 		Style
 	FROM
-		BeerTypes
+		BeerTypes;
 END//
 
 
