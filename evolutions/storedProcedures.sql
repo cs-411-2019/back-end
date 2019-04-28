@@ -745,37 +745,352 @@ END//
 
 #
 # Visited Table Procs
-# HOLD HOLD HOLD
-#CREATE TABLE Visited (
-#  UserId INT NOT NULL,
-#  BarId INT NOT NULL,
-#  `Time` TIMESTAMP,
 #
+
+DROP PROCEDURE IF EXISTS `usp_VisitedCreate`//
+CREATE PROCEDURE usp_VisitedCreate (
+   IN p_userId INT,
+   IN p_barId INT,
+   IN p_Time TIMESTAMP
+)
+BEGIN
+	START TRANSACTION;
+
+    INSERT INTO Visited (
+		UserId,
+		BarId,
+		`Time`)
+    VALUES (
+		p_userId,
+		p_barId,
+		p_Time
+	);	
+
+	SELECT
+		UserId, BarId, `Time`
+	FROM
+		Visited
+	WHERE
+		UserId = p_userId and BarId = p_barId;
+
+	COMMIT;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_VisitedReadAll`//
+CREATE PROCEDURE usp_VisitedReadAll (
+   IN p_userId INT
+)
+BEGIN
+    SELECT
+		Users.UserId,
+        Users.ProfileName,
+		Bars.BarId,
+        Bars.`Name`,
+		`Time`
+    FROM
+		Visited JOIN Users on Visited.UserId = Users.UserId
+				JOIN Bars on Visited.BarId = Bars.BarId
+    WHERE
+		Users.UserId = p_userId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_VisitedDeleteOne`//
+CREATE PROCEDURE usp_VisitedDeleteOne (
+   IN p_userId INT,
+   IN p_barId INT
+)
+BEGIN
+    DELETE FROM Visited
+	WHERE
+		UserId = p_userId AND BarId = p_barId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_VisitedDeleteAll`//
+CREATE PROCEDURE usp_VisitedDeleteAll (
+   IN p_userId INT
+)
+BEGIN
+    DELETE FROM Visited
+	WHERE
+		UserId = p_userId;
+END//
+
 
 #
 # FavoriteBars Table Procs
-# HOLD HOLD HOLD
-#CREATE TABLE FavoriteBars (
-#  UserId INT NOT NULL,
-#  BarId INT NOT NULL,
 #
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBarsCreate`//
+CREATE PROCEDURE usp_FavoriteBarsCreate (
+   IN p_userId INT,
+   IN p_barId INT
+)
+BEGIN
+	START TRANSACTION;
+
+    INSERT INTO FavoriteBars (
+		UserId,
+		BarId)
+    VALUES (
+		p_userId,
+		p_barId
+	);	
+
+	SELECT
+		UserId, BarId
+	FROM
+		FavoriteBars
+	WHERE
+		UserId = p_userId and BarId = p_barId;
+
+	COMMIT;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBarsReadByUser`//
+CREATE PROCEDURE usp_FavoriteBarsReadByUser (
+   IN p_userId INT
+)
+BEGIN
+    SELECT
+		Users.UserId,
+        Users.ProfileName,
+		Bars.BarId,
+        Bars.`Name`
+    FROM
+		FavoriteBars JOIN Users on FavoriteBars.UserId = Users.UserId
+				     JOIN Bars on FavoriteBars.BarId = Bars.BarId
+    WHERE
+		Users.UserId = p_userId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBarsReadByBar`//
+CREATE PROCEDURE usp_FavoriteBarsReadByBar (
+   IN p_barId INT
+)
+BEGIN
+    SELECT
+		Users.UserId,
+        Users.ProfileName,
+		Bars.BarId,
+        Bars.`Name`
+    FROM
+		FavoriteBars JOIN Users on FavoriteBars.UserId = Users.UserId
+				     JOIN Bars on FavoriteBars.BarId = Bars.BarId
+    WHERE
+		Bars.BarId = p_barId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBarsDeleteOne`//
+CREATE PROCEDURE usp_FavoriteBarsDeleteOne (
+   IN p_userId INT,
+   IN p_barId INT
+)
+BEGIN
+    DELETE FROM FavoriteBars
+	WHERE
+		UserId = p_userId AND BarId = p_barId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBarsDeleteAll`//
+CREATE PROCEDURE usp_FavoriteBarsDeleteAll (
+   IN p_userId INT
+)
+BEGIN
+    DELETE FROM FavoriteBars
+	WHERE
+		UserId = p_userId;
+END//
+
 
 #
 # FavoriteBeers Table Procs
-# HOLD HOLD HOLD
-#CREATE TABLE FavoriteBeers (
-#  UserId INT NOT NULL,
-#  BeerId INT NOT NULL,
 #
 
+DROP PROCEDURE IF EXISTS `usp_FavoriteBeersCreate`//
+CREATE PROCEDURE usp_FavoriteBeersCreate (
+   IN p_userId INT,
+   IN p_beerId INT
+)
+BEGIN
+	START TRANSACTION;
+
+    INSERT INTO FavoriteBeers (
+		UserId,
+		BeerId)
+    VALUES (
+		p_userId,
+		p_beerId
+	);	
+
+	SELECT
+		UserId, BeerId
+	FROM
+		FavoriteBeers
+	WHERE
+		UserId = p_userId and BeerId = p_beerId;
+
+	COMMIT;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBeersReadByUser`//
+CREATE PROCEDURE usp_FavoriteBeersReadByUser (
+   IN p_userId INT
+)
+BEGIN
+    SELECT
+		Users.UserId,
+        Users.ProfileName,
+		Beers.BeerId,
+        Beers.`Name`
+    FROM
+		FavoriteBeers JOIN Users on FavoriteBeers.UserId = Users.UserId
+				     JOIN Beers on FavoriteBeers.BeerId = Beers.BeerId
+    WHERE
+		Users.UserId = p_userId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBeersReadByBeer`//
+CREATE PROCEDURE usp_FavoriteBeersReadByBeer (
+   IN p_beerId INT
+)
+BEGIN
+    SELECT
+		Users.UserId,
+        Users.ProfileName,
+		Beers.BeerId,
+        Beers.`Name`
+    FROM
+		FavoriteBeers JOIN Users on FavoriteBeers.UserId = Users.UserId
+				     JOIN Beers on FavoriteBeers.BeerId = Beers.BeerId
+    WHERE
+		Beers.BeerId = p_beerId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBeersDeleteOne`//
+CREATE PROCEDURE usp_FavoriteBeersDeleteOne (
+   IN p_userId INT,
+   IN p_beerId INT
+)
+BEGIN
+    DELETE FROM FavoriteBeers
+	WHERE
+		UserId = p_userId AND BeerId = p_beerId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_FavoriteBeersDeleteAll`//
+CREATE PROCEDURE usp_FavoriteBeersDeleteAll (
+   IN p_userId INT
+)
+BEGIN
+    DELETE FROM FavoriteBeers
+	WHERE
+		UserId = p_userId;
+END//
+
+
 #
-# Drinks Table Procs
-# HOLD HOLD HOLD
-#CREATE TABLE Drinks (
-# UserId INT NOT NULL,
-# BeerId INT NOT NULL,
-# `Time` TIMESTAMP,
+# FavoriteBeers Table Procs
 #
+
+DROP PROCEDURE IF EXISTS `usp_DrinksCreate`//
+CREATE PROCEDURE usp_DrinksCreate (
+   IN p_userId INT,
+   IN p_beerId INT,
+   IN p_time TIMESTAMP
+ )
+BEGIN
+	START TRANSACTION;
+
+    INSERT INTO Drinks (
+		UserId,
+		BeerId,
+        `Time`)
+    VALUES (
+		p_userId,
+		p_beerId,
+		p_time        
+	);	
+
+	SELECT
+		UserId, BeerId, `Time`
+	FROM
+		Drinks
+	WHERE
+		UserId = p_userId and BeerId = p_beerId;
+
+	COMMIT;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_DrinksReadAll`//
+CREATE PROCEDURE usp_DrinksReadAll (
+   IN p_userId INT
+)
+BEGIN
+    SELECT
+		Users.UserId,
+        Users.ProfileName,
+		Beers.BeerId,
+        Beers.`Name`
+    FROM
+		Drinks JOIN Users on Drinks.UserId = Users.UserId
+				     JOIN Beers on Drinks.BeerId = Beers.BeerId
+    WHERE
+		Users.UserId = p_userId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_DrinksDeleteOne`//
+CREATE PROCEDURE usp_DrinksDeleteOne (
+   IN p_userId INT,
+   IN p_beerId INT
+)
+BEGIN
+    DELETE FROM Drinks
+	WHERE
+		UserId = p_userId AND BeerId = p_beerId;
+END//
+
+DROP PROCEDURE IF EXISTS `usp_DrinksDeleteAll`//
+CREATE PROCEDURE usp_DrinksDeleteAll (
+   IN p_userId INT
+)
+BEGIN
+    DELETE FROM Drinks
+	WHERE
+		UserId = p_userId;
+END//
+
+
+DROP PROCEDURE IF EXISTS `usp_GetAllAssociatedUserData`//
+CREATE PROCEDURE usp_GetAllAssociatedUserData (
+   IN p_userId INT
+)
+BEGIN
+
+	# Retrieve user data
+	call usp_UsersReadOne(p_userId);
+
+	# Retrieve friends data
+	call usp_FriendsReadAll(p_userId);
+    
+	# Retrieve bar reviews data
+    call usp_BarReviewReadAllByUser(p_userId);
+    
+	# Retrieve beer reviews data
+    call usp_BeerReviewReadAllByUser(p_userId);
+
+	# Retrieve visited bars data
+    call usp_VisitedReadAll(p_userId);
+
+	# Retrieve drinks beer data
+    call usp_DrinksReadAll(p_userId);
+
+	# Retrieve favorite bars data
+    call usp_FavoriteBarsReadByUser(p_userId);
+    
+	# Retrieve favorite beers data
+    call usp_FavoriteBeersReadByUser(p_userId);
+
+END//
 
 
 DELIMITER ;

@@ -84,7 +84,9 @@ CREATE TABLE BarReviews (
   `Time` TIMESTAMP,
   PRIMARY KEY (BarReviewId),
   FOREIGN KEY (BarId)
-	REFERENCES Bars(BarId)
+	REFERENCES Bars(BarId),
+  FOREIGN KEY (UserId)
+	REFERENCES Users(UserId)
 );
 
 DROP TABLE IF EXISTS `Serves`;
@@ -110,7 +112,12 @@ CREATE TABLE BeerReviews (
   Overall DOUBLE NOT NULL,
   `Text` TEXT NOT NULL,
   `Time` TIMESTAMP,
-  PRIMARY KEY (BeerReviewId)
+  PRIMARY KEY (BeerReviewId),
+  FOREIGN KEY (BeerId)
+	REFERENCES Beers(BeerId),
+  FOREIGN KEY (UserId)
+	REFERENCES Users(UserId)
+
 );
 
 DROP TABLE IF EXISTS `Visited`;
