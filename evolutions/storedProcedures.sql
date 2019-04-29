@@ -1104,7 +1104,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS `usp_BarsNearby`//
 CREATE PROCEDURE usp_BarsNearby (
-	IN p_lat DECIMAL(11,8),
+	IN p_lat DECIMAL(10,8),
     IN p_long DECIMAL(11,8),
     IN p_radius DECIMAL(11,8)
 )
