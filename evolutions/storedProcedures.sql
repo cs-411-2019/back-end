@@ -1092,5 +1092,66 @@ BEGIN
 
 END//
 
+	
+use drinkingBuddies;
 
+DELIMITER //
+
+	
+#
+# Complex query - Nearby Bars
+#
+
+DROP PROCEDURE IF EXISTS `usp_BarsNearby`//
+CREATE PROCEDURE usp_BarsNearby (
+	IN p_lat DECIMAL(10,8),
+    IN p_long DECIMAL(10,8),
+    IN p_radius DECIMAL(11,8)
+)
+BEGIN
+
+    #uses distances on a curve to check if bars are close.
+    #uses a bounding box similar to the QuadTree to first limit possible choices
+	
+    DECLARE distance_units DECIMAL(10,8);
+    
+    SET distance_units = 69.172; # miles
+    #SET distance_units = 111.045; # kilometers
+    
+	SELECT
+		d.BarId,
+		d.`Name`,
+		d.Lat,
+		d.`Long`,
+        d.PostalCode,
+		d.City,
+		distance
+	 FROM (
+		SELECT b.BarId,
+			b.`Name`,
+            b.PostalCode,
+			b.City,
+			b.Lat,
+            b.`Long`,
+			p_radius as radius,
+			distance_units
+				* DEGREES(ACOS(COS(RADIANS(p_lat))
+                * COS(RADIANS(b.Lat))
+                * COS(RADIANS(p_long - b.`Long`))
+                + SIN(RADIANS(p_lat))
+                * SIN(RADIANS(b.Lat)))) AS distance
+		FROM Bars AS b
+		WHERE b.Lat
+			BETWEEN p_lat - (p_radius / distance_units)
+				AND p_lat + (p_radius / distance_units)
+			AND b.`Long`
+				BETWEEN p_long - (p_radius / (distance_units * COS(RADIANS(p_lat))))
+					AND p_long + (p_radius / (distance_units * COS(RADIANS(p_long))))
+	) AS d
+	WHERE distance <= d.radius
+	ORDER BY distance
+	LIMIT 15;
+END//
+
+										       
 DELIMITER ;
