@@ -117,15 +117,13 @@ CREATE PROCEDURE usp_FriendsReadAll (
 )
 BEGIN
     SELECT
-		Users.UserId,
-		FriendUserId,
+		UserId,
 		ProfileName,
-        BirthDay,
-        Gender        
+    BirthDay,
+    Gender
     FROM
-		Friends JOIN Users on Friends.UserId = Users.UserId
-    WHERE
-		Users.UserId = p_userId;
+		 Users WHERE UserId IN
+       (SELECT F2.FriendUserId FROM Users JOIN Friends F2 on Users.UserId = F2.FriendUserId WHERE F2.UserId = p_userId);
 END//
 
 
@@ -1161,6 +1159,17 @@ CREATE PROCEDURE usp_Login (
 BEGIN
   SELECT UserId FROM Users JOIN Login ON Users.ProfileName = Login.ProfileName
   WHERE Login.ProfileName = p_profileName AND Login.Password = p_password;
+END//
+
+
+DROP PROCEDURE IF EXISTS `usp_UserStats`//
+CREATE PROCEDURE usp_UserStats (
+   IN p_userId INT
+ )
+BEGIN
+	START TRANSACTION;
+	SELECT *  FROM vw_Users_Stats WHERE UserId = p_userId;
+COMMIT;
 END//
 
 DELIMITER ;
