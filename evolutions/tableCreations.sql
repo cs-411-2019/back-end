@@ -166,6 +166,17 @@ CREATE TABLE Drinks (
 	REFERENCES Beers(BeerId)
 );
 
+
+DROP TABLE IF EXISTS `Login`;
+CREATE TABLE Login (
+  ProfileName VARCHAR(55) NOT NULL UNIQUE,
+  Password VARCHAR(55) NOT NULL,
+  PRIMARY KEY (ProfileName, Password),
+  FOREIGN KEY (ProfileName)
+    REFERENCES Users(ProfileName)
+);
+
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 
 /* */
+
