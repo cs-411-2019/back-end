@@ -1172,4 +1172,218 @@ BEGIN
 COMMIT;
 END//
 
+										       
+DROP PROCEDURE IF EXISTS `usp_FindFriendsBarAndBeerRecommendation`//
+CREATE PROCEDURE usp_FindFriendsBarAndBeerRecommendation (
+   IN p_userId INT
+)
+proc_Exit:BEGIN
+
+	DECLARE IsFound BOOL;
+
+	SET IsFound = 0;
+
+#	IF p_userId = 1 THEN
+#		SELECT
+#			p_userId as UserId,
+#			u.ProfileName as ProfileName,
+#			2 as FriendUserId,
+#			"BeerSox" as FriendProfileName,
+#			1 as BarId,
+#			"1123 Awesome Dr" as Address,
+#			39.76840000 as Lat,
+#			86.15810000 as `Long`,
+#			"Indianapolis" as City,
+#			"IN" as State,
+#			"46202" as PostalCode,
+#			"8675309" as Phone,
+#			"rupsis.io" as Website,
+# 		    "Olde Cogitator" as BeerName,
+#			161 as BrewerId,
+#			"Cherry's Place" as BrewerName,
+#			1 as BeerTypeId,
+#			"English Oatmeal Stout" as Style,
+#			7.3 as ABV,
+#			"Rotating" as Availability
+#		FROM
+#			Users u
+#		WHERE
+#			u.UserId = p_userId;
+#
+#		SET IsFound = 1;
+#	ELSE
+#		SELECT
+#			p_userId as UserId,
+#			u.ProfileName as ProfileName,
+#			0 as FriendUserId,
+#			NULL as FriendProfileName,
+#			0 as BarId,
+#			NULL as BarName,
+#			NULL as Address,
+#			0.00 as Lat,
+#			0.00 as `Long`,
+#			NULL as City,
+#			NULL as State,
+#			NULL as PostalCode,
+#			NULL as Phone,
+#			NULL as Website,
+#			0 as BeerId,
+#			NULL as BeerName,
+#			0 as BrewerId,
+#			NULL as BrewerName,
+#			0 as BeerTypeId,
+#			NULL as Style,
+#			0.0 as ABV,
+#			NULL as Availability
+#		FROM
+#			Users u
+#		WHERE
+#			u.UserId = p_userId;
+ #   
+#		SET IsFound = 1;
+#	END IF;
+
+	# Find a Bar AND Beer
+	# 1 Friend favorite of bar
+    # 2 Friend favorite of beer
+    # 3 Bar not favorite of user
+    # 4 Beer ot favorite of user
+    # 5 Bar servers the selected beer
+    # 6 Sorted by Bar ratings then by Beer Ratings
+	SELECT
+		p_userId as UserId,
+        u.ProfileName as ProfileName,
+		fu.UserId as FriendUserId,
+        fu.ProfileName as FriendProfileName,
+        fb.BarId,
+        fb.`Name` as BarName,
+        fb.Address,
+        fb.Lat,
+        fb.`Long`,
+        fb.City,
+        fb.State,
+        fb.PostalCode,
+        fb.Phone,
+        fb.WebSite,
+        fbeers.BeerId,
+        fbeers.`Name` as BeerName,
+        fbeers.BrewerId,
+        fbrews.`Name` as BrewerName,
+        fbeers.BeerTypeId,
+        fbeertypes.Style,
+        fbeers.ABV,
+        fbeers.Availability
+	FROM
+		Users u JOIN Friends f on u.UserId = f.UserId			# My Friends
+			JOIN Users fu ON f.FriendUserId = fu.UserId			# Friend's User Record
+            JOIN FavoriteBars ffb on fu.UserId = ffb.UserId		# Friend's FavoriteBars
+            JOIN Bars fb on ffb.BarId = fb.BarId				# Friend's FavortieBar details
+            JOIN FavoriteBars myfb on myfb.UserId = u.UserId AND  fb.BarId != myfb.BarId	# So I select new bars not already my favorite
+			JOIN FavoriteBeers ffbeers on fu.UserId = ffbeers.UserId	# Friend's Favorite Beers
+            JOIN Beers fbeers on ffbeers.BeerId = fbeers.BeerId			#Friends' FavoriteBeers details
+            JOIN Breweries fbrews on fbeers.BrewerId = fbrews.BrewerId	#Link to Brewer table
+            JOIN BeerTypes fbeertypes on fbeertypes.BeerTypeId = fbeers.BeerTypeId	#Link to BeerType table
+            JOIN FavoriteBeers myfbeers on myfbeers.UserId = u.UserId AND fbeers.BeerId != myfbeers.BeerId # So I select new beers not already my favorite
+			JOIN Serves serves on (serves.BeerId = fbeers.BeerId AND serves.BarId = fb.BarId)	# The beer and bar ARE combined OR there is no Beer
+			LEFT JOIN (SELECT rb.BarId, AVG(rb.Overall) as barAvg FROM BarReviews rb GROUP BY BarId)
+				as revbarrate on revbarrate.BarId = fb.BarId				# Get the rating to use for sort
+			LEFT JOIN (SELECT rbeers.BeerId, AVG(rbeers.Overall) as beerAvg FROM BeerReviews rbeers GROUP BY BeerId)
+				as revbeerrate on revbeerrate.BeerId = fbeers.BeerId				# Get the rating to use for sort
+	WHERE
+		u.UserId = p_userId
+	ORDER BY
+		revbarrate.barAvg DESC,
+        revbeerrate.beerAvg DESC;
+
+	IF FOUND_ROWS() > 0 THEN
+		SET isFound = 1;
+	END IF;
+
+    IF IsFound = 1 THEN
+		LEAVE proc_Exit;
+    END IF;
+
+
+
+	# Find a Bar AND Beer
+	# 1 Friend favorite of bar
+    # 3 Bar not favorite of user
+    # 6 Sorted by Bar ratings then by Beer Ratings
+	SELECT
+		p_userId as UserId,
+        u.ProfileName as ProfileName,
+		fu.UserId as FriendUserId,
+        fu.ProfileName as FriendProfileName,
+        fb.BarId,
+        fb.`Name` as BarName,
+        fb.Address,
+        fb.Lat,
+        fb.`Long`,
+        fb.City,
+        fb.State,
+        fb.PostalCode,
+        fb.Phone,
+        fb.WebSite,
+		0 as BeerId,
+		NULL as BeerName,
+		0 as BrewerId,
+		NULL as BrewerName,
+		0 as BeerTypeId,
+		NULL as Style,
+		0.0 as ABV,
+		NULL as Availability
+	FROM
+		Users u JOIN Friends f on u.UserId = f.UserId			# My Friends
+			JOIN Users fu ON f.FriendUserId = fu.UserId			# Friend's User Record
+            JOIN FavoriteBars ffb on fu.UserId = ffb.UserId		# Friend's FavoriteBars
+            JOIN Bars fb on ffb.BarId = fb.BarId				# Friend's FavortieBar details
+            JOIN FavoriteBars myfb on myfb.UserId = u.UserId AND  fb.BarId != myfb.BarId	# So I select new bars not already my favorite
+			LEFT JOIN (SELECT rb.BarId, AVG(rb.Overall) as barAvg FROM BarReviews rb GROUP BY BarId)
+				as revbarrate on revbarrate.BarId = fb.BarId				# Get the rating to use for sort
+	WHERE
+		u.UserId = p_userId
+	ORDER BY
+		revbarrate.barAvg DESC;
+        
+	IF FOUND_ROWS() > 0 THEN
+		SET isFound = 1;
+	END IF;
+
+    IF IsFound = 1 THEN
+		LEAVE proc_Exit;
+    END IF;
+
+	SELECT
+		p_userId as UserId,
+		u.ProfileName as ProfileName,
+		0 as FriendUserId,
+		NULL as FriendProfileName,
+		0 as BarId,
+		NULL as BarName,
+		NULL as Address,
+		0.00 as Lat,
+		0.00 as `Long`,
+		NULL as City,
+		NULL as State,
+		NULL as PostalCode,
+		NULL as Phone,
+		NULL as Website,
+		0 as BeerId,
+		NULL as BeerName,
+		0 as BrewerId,
+		NULL as BrewerName,
+		0 as BeerTypeId,
+		NULL as Style,
+		0.0 as ABV,
+		NULL as Availability
+	FROM
+		Users u
+	WHERE
+		u.UserId = p_userId;
+    
+END//										       
+										       
+										       
+										       
+										       
 DELIMITER ;
