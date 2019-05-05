@@ -995,8 +995,7 @@ END//
 DROP PROCEDURE IF EXISTS `usp_DrinksCreate`//
 CREATE PROCEDURE usp_DrinksCreate (
    IN p_userId INT,
-   IN p_beerId INT,
-   IN p_time TIMESTAMP
+   IN p_beerId INT
  )
 BEGIN
 	START TRANSACTION;
@@ -1008,7 +1007,7 @@ BEGIN
     VALUES (
 		p_userId,
 		p_beerId,
-		p_time        
+		NOW()        
 	);	
 
 	SELECT
@@ -1153,5 +1152,15 @@ BEGIN
 	LIMIT 15;
 END//
 
-										       
+
+DROP PROCEDURE IF EXISTS `usp_Login`//
+CREATE PROCEDURE usp_Login (
+   IN p_profileName VARCHAR(55),
+   IN p_password VARCHAR(55)
+)
+BEGIN
+  SELECT UserId FROM Users JOIN Login ON Users.ProfileName = Login.ProfileName
+  WHERE Login.ProfileName = p_profileName AND Login.Password = p_password;
+END//
+
 DELIMITER ;
